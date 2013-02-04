@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+require 'newrepo'
+require 'optparse'
+require 'curb'
+
+options = {}
+
+nr = OptionParser.new do |opt|
+  opt.banner = "Usage: nr COMMAND [OPTIONS]"
+  opt.separator  ""
+  opt.separator  "Commands"
+  opt.separator  "     public: Public Repo"
+  opt.separator  "     private: Private Repo"
+  opt.separator  ""
+  opt.separator  "Options"
+
+  opt.on("-u","--username","your bitbucket username") do |username|
+    options[:username] << username
+  end
+
+  opt.on("-p","--password","your password") do |password|
+    options[:password] << password
+  end
+
+  opt.on("-n","--name","Repo name") do |name|
+    options[:name] << name
+  end
+
+  opt.on("-l","--language","Repo language, i.e. Ruby, PHP, Javascript") do |language|
+    options[:language] = language
+  end
+
+  opt.on("-h","--help","help") do
+    puts nr
+  end
+end
+
+nr.parse!
+
+case ARGV[0]
+when "public"
+  puts "creating a public repo with the options #{options.inspect}"
+when "private"
+  puts "creating a private repo with the options #{options.inspect}"
+else
+  puts nr
+end
+
+
+info = Newrepo::Info.new
+info.describe
