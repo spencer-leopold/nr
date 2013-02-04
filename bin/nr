@@ -1,7 +1,26 @@
 #!/usr/bin/env ruby
 require 'newrepo'
+require 'highline'
 require 'colorize'
 require 'optparse'
+
+def ui
+  @ui ||= HighLine.new
+end
+
+def get_username(prompt_text, default = '')
+  prompt = prompt_text
+  prompt += default.length > 0 ? ' [' + default + ']' : ''
+  param = ui.ask(prompt)
+  return param.length > 0 ? param : default
+end
+
+def get_password(prompt_text, default = '')
+  prompt = prompt_text
+  prompt += default.length > 0 ? ' [' + default + ']' : ''
+  param = ui.ask(prompt) { |q| q.echo = false }
+  return param.length > 0 ? param : default
+end
 
 options = {}
 
@@ -9,7 +28,7 @@ nr = OptionParser.new do |opt|
   info = Newrepo::Info.new
   opt.banner = info.describe
   opt.separator  ""
-  opt.separator  "Usage: nr COMMAND1 COMMAND2[OPTIONS]"
+  opt.separator  "Usage: nr COMMAND1 COMMAND2 [OPTIONS]"
   opt.separator  ""
   opt.separator  "Commands 1"
   opt.separator  "     public: Public Repo"
@@ -21,16 +40,16 @@ nr = OptionParser.new do |opt|
   opt.separator  ""
   opt.separator  "Options"
 
-  opt.on("-u", "--username", String, "your bitbucket username") do |username|
-    options[:username] = username
+  opt.on("-u", "--username", "Username") do |user|
+    options[:username] = user
   end
 
-  opt.on("-p", "--password", String, "your password") do |password|
-    options[:password] = password
-  end
+  opt.on("-p", "--password", "User password") {
+    options[:password] = nil
+  }
 
-  opt.on("-n", "--name", String, "Repo name") do |name|
-    options[:name] = name
+  opt.on("-d", "--description", String, "Repo description") do |desc|
+    options[:description] = desc
   end
 
   opt.on("-l", "--language", String, "Repo language, i.e. Ruby, PHP, Javascript") do |language|
@@ -59,21 +78,33 @@ rescue => e
     abort
 end
 
-case ARGV[0]
-when "public"
-  permission = false
-  puts "creating a public repo"
-when "private"
-  permission = true
-  puts "creating a private repo"
+# if options not specified via command-line, ask for them
+if options[:username] == nil
+  username = get_username('Username: ', '')
 else
-  puts nr
+  username = options[:username]
+end
+if options[:password] == nil
+  password = get_password('Password: ', '')
+else
+  password = options[:password]
 end
 
 # TODO add public or private options
 Dir.chdir newrepo_path do
+  case ARGV[0]
+  when "public"
+    permission = false
+    puts "creating a public repo"
+  when "private"
+    permission = true
+    puts "creating a private repo"
+  else
+    puts nr
+  end
+
   info = Newrepo::Info.new
-  cmd = "curl --user #{info.user}:#{info.pass} https://api.bitbucket.org/1.0/repositories/ --data \"name=#{ARGV[1]}\""
+  cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\""
   puts cmd
   system cmd
 end

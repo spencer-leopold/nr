@@ -5,6 +5,7 @@ require 'newrepo/version'
 
 Gem::Specification.new do |gem|
   gem.add_dependency "colorize"
+  gem.add_dependency "highline"
   gem.name          = "newrepo"
   gem.version       = Newrepo::VERSION
   gem.authors       = ["Spencer Leopold"]
