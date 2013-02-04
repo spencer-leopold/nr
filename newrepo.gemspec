@@ -4,11 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'newrepo/version'
 
 Gem::Specification.new do |gem|
-  gem.add_dependency "curb"
-  gem.add_dependency "thor"
-  gem.add_development_dependency "rspec", "~> 2.6"
-  gem.add_development_dependency "cucumber"
-  gem.add_development_dependency "aruba"
+  gem.add_dependency "colorize"
   gem.name          = "newrepo"
   gem.version       = Newrepo::VERSION
   gem.authors       = ["Spencer Leopold"]
