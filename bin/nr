@@ -30,8 +30,9 @@ nr = OptionParser.new do |opt|
   opt.separator  ""
   opt.separator  "Usage: nr COMMAND1 COMMAND2 [OPTIONS]"
   opt.separator  ""
-  opt.separator  "Commands 1"
+  opt.separator  "Command 1"
   opt.separator  "     public: Public Repo"
+  opt.separator  "             or"
   opt.separator  "     private: Private Repo"
   opt.separator  ""
   opt.separator  ""
@@ -40,71 +41,69 @@ nr = OptionParser.new do |opt|
   opt.separator  ""
   opt.separator  "Options"
 
-  opt.on("-u", "--username", "Username") do |user|
-    options[:username] = user
-  end
-
-  opt.on("-p", "--password", "User password") {
-    options[:password] = nil
-  }
-
-  opt.on("-d", "--description", String, "Repo description") do |desc|
+  opt.on("-d [DESC]", String, "Repo description") do |desc|
     options[:description] = desc
   end
 
-  opt.on("-l", "--language", String, "Repo language, i.e. Ruby, PHP, Javascript") do |language|
-    options[:language] = language
+  opt.on("-l [LANG]", String, "Repo language, i.e. Ruby, PHP, Javascript") do |lang|
+    options[:language] = lang
   end
 
   opt.on("-h","--help","help") do
-    puts nr
+    options[:stop] = true
+    puts opt
   end
 end.parse!(ARGV)
 
-def newrepo_path
-  if ENV.include?('NEWREPO_PATH')
-    nr_path = File.expand_path ENV['NEWREPO_PATH']
-  else
-    nr_path = File.expand_path "~/.newrepo"
-  end
-
-  if !File.exists?(nr_path)
-    raise "ERROR: Your defined newrepo path (#{nr_path}) is missing".red
-  end
-
-  nr_path
-rescue => e
-    puts e
-    abort
-end
-
-# if options not specified via command-line, ask for them
-if options[:username] == nil
+if options[:stop] == nil
+  # Prompt for username and password
   username = get_username('Username: ', '')
-else
-  username = options[:username]
-end
-if options[:password] == nil
   password = get_password('Password: ', '')
-else
-  password = options[:password]
-end
 
-# TODO add public or private options
-Dir.chdir newrepo_path do
+  # Prompt popular choices for repo language
+  if options[:language] == nil
+    ui.choose do |menu|
+      menu.index_suffix = ". "
+
+      menu.header = "
+Languages"
+      menu.prompt = "Choose the programming language for your repo. If " +
+      "it's not listed above, run the command with -l LANGUAGE.
+Your choice: "
+
+      menu.choices(
+        :c, :'c#', :'c++', :'html/css',
+        :java, :javascript, :'objective-c', :perl,
+        :php, :python, :ruby, :shell, :sql
+      ) do |choice|
+        options[:language] = choice
+        ui.say("
+#{choice} is a nice choice!
+
+")
+      end
+    end
+  end
+
   case ARGV[0]
   when "public"
     permission = false
-    puts "creating a public repo"
+    ui.say("creating a public repo")
   when "private"
     permission = true
-    puts "creating a private repo"
+    ui.say("creating a private repo")
   else
-    puts nr
+    ui.say("Although, you must specify the type of repo... public or private")
   end
 
-  info = Newrepo::Info.new
-  cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\""
-  puts cmd
-  system cmd
+  if permission != nil
+    cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories" +
+    " --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\"" +
+    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language]}\""
+    shown = "curl https://api.bitbucket.org/1.0/repositories" +
+    " --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\"" +
+    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language]}\""
+    puts shown
+    system cmd
+  end
 end
