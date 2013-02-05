@@ -20,7 +20,7 @@ The basic command is:
 
     $ nr [repo-type]
 
-It will automatically prompt for your username, password, language, and description.  The languages are only popular ones, so if you need on that isn't listed, just run the command with (-l LANGUAGE).
+It will automatically prompt for your username, password, language, and description.  The languages listed are only the popular ones on BitBucket, so if you need one that isn't listed, just run the command with (-l LANGUAGE).
 
 Example:
 
