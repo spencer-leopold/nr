@@ -76,7 +76,7 @@ Your choice: "
         ui.say("
 #{choice} is a nice choice!
 
-")
+".green)
       end
     end
   end
@@ -93,7 +93,7 @@ Your choice: "
     permission = true
     ui.say("creating a private repo")
   else
-    ui.say("You must specify the type of repo... public or private")
+    ui.say("You must specify the type of repo... public or private".red)
   end
 
   if permission != nil
