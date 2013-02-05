@@ -16,7 +16,7 @@ it doesn't matter where you install it, you'll be able to run the command from a
 
 ## Usage
 
-The basic command is
+The basic command is:
   $ nr [repo-type] [repo-name]
 
 It will automatically prompt for your username, password, and language for the repo.
