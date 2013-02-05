@@ -12,17 +12,16 @@ and then:
 
     $ rake install
 
-it doesn't matter where you install it, you'll be able to run the command from any directory
+Just like any other gem, you'll be able to run the command from any directory.
 
 ## Usage
 
 The basic command is:
 
-    $ nr [repo-type] [repo-name]
+    $ nr [repo-type]
 
-It will automatically prompt for your username, password, and language for the repo.
-You can run the command and generate a repo without a description, but if you prefer, you can set a flag (-d) for a description as well.
+It will automatically prompt for your username, password, language, and description.  The languages are only popular ones, so if you need on that isn't listed, just run the command with (-l LANGUAGE).
 
 Example:
 
-    $ nr private MyTestRepo -d "This is just a test, do not be alarmed."
+    $ nr private -l Arduino

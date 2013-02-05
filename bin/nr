@@ -8,13 +8,6 @@ def ui
   @ui ||= HighLine.new
 end
 
-def get_username(prompt_text, default = '')
-  prompt = prompt_text
-  prompt += default.length > 0 ? ' [' + default + ']' : ''
-  param = ui.ask(prompt)
-  return param.length > 0 ? param : default
-end
-
 def get_password(prompt_text, default = '')
   prompt = prompt_text
   prompt += default.length > 0 ? ' [' + default + ']' : ''
@@ -22,22 +15,22 @@ def get_password(prompt_text, default = '')
   return param.length > 0 ? param : default
 end
 
+def get_value(prompt_text, default = '')
+  prompt = prompt_text
+  prompt += default.length > 0 ? ' [' + default + ']' : ''
+  param = ui.ask(prompt)
+  return param.length > 0 ? param : default
+end
+
 options = {}
 
 nr = OptionParser.new do |opt|
-  info = Newrepo::Info.new
-  opt.banner = info.describe
+  opt.banner = "Usage: nr COMMAND [OPTIONS]"
   opt.separator  ""
-  opt.separator  "Usage: nr COMMAND1 COMMAND2 [OPTIONS]"
-  opt.separator  ""
-  opt.separator  "Command 1"
+  opt.separator  "Command"
   opt.separator  "     public: Public Repo"
   opt.separator  "             or"
   opt.separator  "     private: Private Repo"
-  opt.separator  ""
-  opt.separator  ""
-  opt.separator  "Command 2"
-  opt.separator  "     Name of Repo"
   opt.separator  ""
   opt.separator  "Options"
 
@@ -51,13 +44,16 @@ nr = OptionParser.new do |opt|
 
   opt.on("-h","--help","help") do
     options[:stop] = true
+    info = Newrepo::Info.new
+    puts info.describe
     puts opt
   end
 end.parse!(ARGV)
 
 if options[:stop] == nil
-  # Prompt for username and password
-  username = get_username('Username: ', '')
+  # Prompt for Repo name, username, and password
+  repo_name = get_value('Repo Name: ', '')
+  username = get_value('Username: ', '')
   password = get_password('Password: ', '')
 
   # Prompt popular choices for repo language
@@ -72,9 +68,9 @@ Languages"
 Your choice: "
 
       menu.choices(
-        :c, :'c#', :'c++', :'html/css',
-        :java, :javascript, :'objective-c', :perl,
-        :php, :python, :ruby, :shell, :sql
+        :C, :'C#', :'C++', :CoffeeScript, :'HTML/CSS',
+        :Java, :Javascript, :'Objective-C', :Perl,
+        :Php, :Python, :Ruby, :Shell, :SQL
       ) do |choice|
         options[:language] = choice
         ui.say("
@@ -85,6 +81,10 @@ Your choice: "
     end
   end
 
+  if options[:description] == nil
+    options[:description] = get_value('Description: ', '')
+  end
+
   case ARGV[0]
   when "public"
     permission = false
@@ -93,16 +93,16 @@ Your choice: "
     permission = true
     ui.say("creating a private repo")
   else
-    ui.say("Although, you must specify the type of repo... public or private")
+    ui.say("You must specify the type of repo... public or private")
   end
 
   if permission != nil
     cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories" +
-    " --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\"" +
-    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language]}\""
+    " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
+    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
     shown = "curl https://api.bitbucket.org/1.0/repositories" +
-    " --data \"is_private=#{permission}\" --data \"name=#{ARGV[1]}\"" +
-    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language]}\""
+    " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
+    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
     puts shown
     system cmd
   end
