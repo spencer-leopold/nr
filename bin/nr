@@ -138,7 +138,7 @@ Your choice: "
       " -d '{\"private\":#{permission}, \"name\":\"#{repo_name}\"," +
       " \"description\":\"#{options[:description]}\"}'"
     else
-      ui.say("You must choose a service #{cmd}".red)
+      ui.say("You must choose a service".red)
     end
 
     puts shown
