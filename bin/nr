@@ -34,6 +34,10 @@ nr = OptionParser.new do |opt|
   opt.separator  ""
   opt.separator  "Options"
 
+  opt.on("-s [SERV]", String, "Service Name") do |serv|
+    options[:service] = serv
+  end
+
   opt.on("-d [DESC]", String, "Repo description") do |desc|
     options[:description] = desc
   end
@@ -52,12 +56,33 @@ end.parse!(ARGV)
 
 if options[:stop] == nil
   # Prompt for Repo name, username, and password
+  # Prompt popular choices for repo language
+  if options[:service] == nil
+    ui.choose do |menu|
+      menu.index_suffix = ". "
+
+      menu.header = "
+Services"
+      menu.prompt = "Choose the service for your repository " +
+"Your choice: "
+
+      menu.choices(
+        :BitBucket, :GitHub
+      ) do |choice|
+        options[:service] = choice
+        ui.say("
+Goin with #{choice} eh...
+
+".green)
+      end
+    end
+  end
   repo_name = get_value('Repo Name: ', '')
   username = get_value('Username: ', '')
   password = get_password('Password: ', '')
 
   # Prompt popular choices for repo language
-  if options[:language] == nil
+  if options[:language] == nil && options[:service].to_s == "BitBucket"
     ui.choose do |menu|
       menu.index_suffix = ". "
 
@@ -88,21 +113,34 @@ Your choice: "
   case ARGV[0]
   when "public"
     permission = false
-    ui.say("creating a public repo")
+    ui.say("creating a public repo".green)
   when "private"
     permission = true
-    ui.say("creating a private repo")
+    ui.say("creating a private repo".green)
   else
     ui.say("You must specify the type of repo... public or private".red)
   end
 
   if permission != nil
-    cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories" +
-    " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
-    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
-    shown = "curl https://api.bitbucket.org/1.0/repositories" +
-    " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
-    " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
+    case options[:service].to_s
+    when "BitBucket"
+      cmd = "curl --user #{username}:#{password} https://api.bitbucket.org/1.0/repositories" +
+      " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
+      " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
+      shown = "curl https://api.bitbucket.org/1.0/repositories" +
+      " --data \"is_private=#{permission}\" --data \"name=#{repo_name}\"" +
+      " --data \"description=#{options[:description]}\" --data \"language=#{options[:language].downcase}\""
+    when "GitHub"
+      cmd = "curl -u #{username}:#{password} https://api.github.com/user/repos" +
+      " -d '{\"name\":\"#{repo_name}\", \"private\":#{permission}," +
+      " \"description\":\"#{options[:description]}\"}'"
+      shown = "curl https://api.github.com/user/repos" +
+      " -d '{\"private\":#{permission}, \"name\":\"#{repo_name}\"," +
+      " \"description\":\"#{options[:description]}\"}'"
+    else
+      ui.say("You must choose a service #{cmd}".red)
+    end
+
     puts shown
     system cmd
   end

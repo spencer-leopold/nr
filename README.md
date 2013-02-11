@@ -1,6 +1,6 @@
 # Newrepo
 
-Newrepo is a tool to quickly create bitbucket, and eventually github repositories from the command line.
+Newrepo is a tool to quickly create bitbucket, and github repositories from the command line.
 
 ## Installation
 
