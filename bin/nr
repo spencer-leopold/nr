@@ -61,19 +61,14 @@ if options[:stop] == nil
     ui.choose do |menu|
       menu.index_suffix = ". "
 
-      menu.header = "
-Services"
-      menu.prompt = "Choose the service for your repository " +
-"Your choice: "
+      menu.header = "\nServices"
+      menu.prompt = "Choose the service for your repository \nYour choice: "
 
       menu.choices(
         :BitBucket, :GitHub
       ) do |choice|
         options[:service] = choice
-        ui.say("
-Goin with #{choice} eh...
-
-".green)
+        ui.say("\nGoin with #{choice} eh...\n\n".green)
       end
     end
   end
@@ -86,11 +81,9 @@ Goin with #{choice} eh...
     ui.choose do |menu|
       menu.index_suffix = ". "
 
-      menu.header = "
-Languages"
+      menu.header = "\nLanguages"
       menu.prompt = "Choose the programming language for your repo. If " +
-      "it's not listed above, run the command with -l LANGUAGE.
-Your choice: "
+      "it's not listed above, run the command with -l LANGUAGE. \nYour choice: "
 
       menu.choices(
         :C, :'C#', :'C++', :CoffeeScript, :'HTML/CSS',
@@ -98,10 +91,7 @@ Your choice: "
         :Php, :Python, :Ruby, :Shell, :SQL
       ) do |choice|
         options[:language] = choice
-        ui.say("
-#{choice} is a nice choice!
-
-".green)
+        ui.say("\n#{choice} is a nice choice!\n\n".green)
       end
     end
   end
