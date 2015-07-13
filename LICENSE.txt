@@ -1,4 +1,4 @@
-Copyright (c) 2013 Spencer Leopold
+Copyright (c) 2013 Spencer Leopold <spencer.leopold@gmail.com>
 
 MIT License
 

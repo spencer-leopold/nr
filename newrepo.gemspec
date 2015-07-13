@@ -9,9 +9,9 @@ Gem::Specification.new do |gem|
   gem.name          = "newrepo"
   gem.version       = Newrepo::VERSION
   gem.authors       = ["Spencer Leopold"]
-  gem.email         = ["sleopold@contextllc.com"]
-  gem.description   = %q{Tool to create a new bitbucket repo from the command line}
-  gem.summary       = %q{Tool to create a new bitbucket repo from the command line}
+  gem.email         = ["spencer.leopold@gmail.com"]
+  gem.description   = %q{Tool to create new repos from the command line. Supports Github and Bitbucket.}
+  gem.summary       = %q{Tool to create new repos from the command line. Supports Github and Bitbucket.}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
