@@ -12,8 +12,6 @@ and then:
 
     $ rake install
 
-Just like any other gem, you'll be able to run the command from any directory.
-
 ## Usage
 
 The basic command is:
